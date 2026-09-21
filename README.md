@@ -74,4 +74,15 @@ The main components have these roles:
 
 The producer and consumer should use the same topic so that the detected events can reach the consumer and appear in the final output.
 
-# Task 5:
+## Task 5: Investigating and Fixing the Workflow
+
+While testing the AIOps workflow, I found two problems.
+
+The first problem was in the anomaly detector. It was checking for `WARNING` logs, but the service data uses `ERROR` for the records that contain problems. Because of this, the error messages were not being included in the anomaly reasons. I changed the detector to check for `ERROR` logs.
+
+The second problem was in the connection between the producer and consumer. The producer was publishing events to `service-events`, while the consumer was listening to `anomaly-events`. These were separate topics, so the consumer did not receive the events. I corrected the pipeline so that both components use the same `EventTopic` object.
+
+After making these changes, I ran the pipeline again. It processed all 10 records, detected 2 anomalies, and the consumer received both events. The events occurred at `10:05` and `10:06` and included the high metric values and error-log details.
+
+This confirmed that the workflow now works from anomaly detection through to the final AIOps output. The existing architecture was kept in place, and only the incorrect log check and topic connection were corrected.
+
