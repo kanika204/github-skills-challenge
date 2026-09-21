@@ -86,3 +86,68 @@ After making these changes, I ran the pipeline again. It processed all 10 record
 
 This confirmed that the workflow now works from anomaly detection through to the final AIOps output. The existing architecture was kept in place, and only the incorrect log check and topic connection were corrected.
 
+
+## Task 6: Running the Complete AIOps Pipeline
+
+After fixing the issues found in the previous task, I ran the full AIOps pipeline again.
+
+The pipeline processed all 10 operational data records and found two unusual observations at `10:05` and `10:06`. An event was created for each anomaly and sent to the producer.
+
+The producer published both events to the shared `service-events` topic. The consumer received both events from that topic and processed them successfully.
+
+The final output showed the details of the two problems in the payment service. These included the increased response times, high CPU and memory usage, and the error messages recorded at those times.
+
+This confirmed that the complete workflow is now working:
+
+Operational Data → Anomaly Detection → Event → Producer → Topic → Consumer → AIOps Output
+
+The final result correctly represents the payment service timeout at `10:05` and the database connection timeout at `10:06`.
+
+
+## Task 7: AIOps Assessment Summary
+
+### AIOps Scenario
+This project simulates monitoring a payment service. The service produces operational information in the form of metrics and logs. The aim is to detect unusual behaviour and turn it into an event that can be passed through an AIOps workflow.
+
+The workflow used in this project is:
+Operational Data → Anomaly Detection → Event → Producer → Topic → Consumer → AIOps Output
+
+### Operational Data
+The sample data is stored in `data/service_data.json`. It contains 10 records for the `payment-service`, with one record collected every minute between `10:00` and `10:09` on `2026-09-20`.
+
+The metric fields are:- `response_time_ms`- `cpu_percent`- `memory_percent`
+The log fields are:
+- `log_level`
+- `message`
+
+The `timestamp` field shows when each observation was recorded and makes it possible to follow the service behaviour in time order.
+
+### Observations from the Data
+Most of the records show normal behaviour. From `10:00` to `10:04`, response times were between 120 ms and 142 ms, CPU usage was between 42% and 48%, and memory usage was between 51% and 55%. The logs showed that payment requests were processed successfully.
+The records from `10:07` to `10:09` also returned to similar normal values.
+The unusual behaviour occurred at `10:05` and `10:06`. At `10:05`, the response time increased to 610 ms and the log reported a payment service timeout. At `10:06`, the response time was 640 ms, CPU usage reached 94%, and memory usage reached 91%. The log at that time reported a database connection timeout.
+
+### Anomaly Detection Results
+
+The anomaly detector processed all 10 records and identified two anomalies.
+
+The first anomaly was at `10:05`, because the response time was above the 500 ms threshold. The second anomaly was at `10:06`, because the response time, CPU usage, and memory usage were all above their configured thresholds.
+
+The detector was originally checking for `WARNING` logs, but the data uses the `ERROR` level for the concerning records. I corrected this so that error logs are included in the anomaly reasons.
+
+The normal records were not incorrectly flagged.
+
+### Event-Processing Flow
+
+When the detector finds an anomaly, it creates an event containing the timestamp, service name, event type, reasons, and original record.
+
+The producer publishes this event to an in-memory topic. The consumer reads the event from the same topic and passes it to the final AIOps output.
+
+The producer and consumer originally used separate topic objects. Although both topics had names, they each had their own message list, so the consumer received no events. I corrected the workflow so that both components use the same `EventTopic` object.
+
+### Final Execution Result
+
+After making the corrections, I ran the pipeline from the project root using:
+  python aiops_pipeline.py
+
+
