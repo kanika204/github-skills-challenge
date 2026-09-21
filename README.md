@@ -54,3 +54,22 @@ But the detected events are not printed as topic of producer and consumer are di
 One expected issue was missed by the detector. The concerning records use the `ERROR` log level, but the detector only checks for `WARNING`. Because of this, the error logs were not included in the anomaly reasons.
 The detected events were also not printed in the final output. The producer sends events to the `service-events` topic, while the consumer reads from the separate `anomaly-events` topic. Therefore, the consumer received zero events even though two anomalies were detected.
 A possible improvement would be to make the detector recognise `ERROR` logs and ensure that the producer and consumer use the same topic.
+
+
+## Task 4: Checking the Event Flow
+
+I ran the pipeline to see whether an anomaly could move through the full event-processing workflow.
+
+The detector found two anomalies in the data and created events for them. The producer then received these events and published them to the 'service-events' topic.
+However, the consumer was listening to a different topic, 'anomaly-events'. Because the producer and consumer were using different topics, the consumer did not receive any events. The output showed that two anomalies were detected, but zero events were consumed.
+
+This means the complete workflow did not work as expected. The anomaly detection and event creation parts worked, but the events did not reach the consumer or the final AIOps output.
+
+The main components have these roles:
+- Event: Stores information about the detected anomaly.
+- Producer: Sends the event to a topic.
+- Topic: Holds the event until it is consumed.
+- Consumer: Reads and processes the event.
+- AIOps output: Displays the events that were successfully processed.
+
+The producer and consumer should use the same topic so that the detected events can reach the consumer and appear in the final output.
