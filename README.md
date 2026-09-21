@@ -101,17 +101,6 @@ After making these changes, I ran the pipeline again. It processed all 10 record
 
 This confirmed that the workflow now works from anomaly detection through to the final AIOps output. The existing architecture was kept in place, and only the incorrect log check and topic connection were corrected.
 
-
-Issues solved:
-
-
-
-
-Final Output:
-
-
-
-
  Task 6: Running the Complete AIOps Pipeline
 
 
@@ -191,16 +180,10 @@ After making the corrections, I ran the pipeline from the project root using:
   python aiops_pipeline.py
 
 
-
-
-
-
 Task 8:
 ## Task 8: Validation
 I reran the tests using the project root in the Python path:
 
-
 ```bash
 PYTHONPATH=. python -m pytest
 
-Validation:
