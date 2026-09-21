@@ -73,3 +73,5 @@ The main components have these roles:
 - AIOps output: Displays the events that were successfully processed.
 
 The producer and consumer should use the same topic so that the detected events can reach the consumer and appear in the final output.
+
+# Task 5:
